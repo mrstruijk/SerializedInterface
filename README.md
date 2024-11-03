@@ -17,6 +17,6 @@ Don't want to serialze yourself but just want the inline hints and drag/drop Ins
 
 ## YouTube
 
-[**Watch the full video on YouTube**](#) 
+[**Watch the full video on YouTube**](https://youtu.be/xcGPr04Mgm4) 
 
 You can also check out my [YouTube channel](https://www.youtube.com/@git-amend?sub_confirmation=1) for more Unity content.

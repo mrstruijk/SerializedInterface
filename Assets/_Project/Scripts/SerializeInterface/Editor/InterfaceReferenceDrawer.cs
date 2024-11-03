@@ -20,14 +20,16 @@ public class InterfaceReferenceDrawer : PropertyDrawer {
         var assignedObject = EditorGUI.ObjectField(position, label, underlyingProperty.objectReferenceValue, args.ObjectType, true);
 
         if (assignedObject != null) {
-            if (args.InterfaceType.IsAssignableFrom(assignedObject.GetType())) {
-                if (assignedObject is GameObject gameObject) {
-                    var component = gameObject.GetComponent(args.InterfaceType);
+            Object component = null;
 
-                    ValidateAndAssignObject(underlyingProperty, component, gameObject.name, args.InterfaceType.Name);
-                } else {
-                    ValidateAndAssignObject(underlyingProperty, assignedObject, assignedObject.GetType().Name, args.InterfaceType.Name);
-                }
+            if (assignedObject is GameObject gameObject) {
+                component = gameObject.GetComponent(args.InterfaceType);
+            } else if (args.InterfaceType.IsAssignableFrom(assignedObject.GetType())) {
+                component = assignedObject;
+            }
+
+            if (component != null) {
+                ValidateAndAssignObject(underlyingProperty, component, component.name, args.InterfaceType.Name);
             } else {
                 Debug.LogWarning($"Assigned object does not implement required interface '{args.InterfaceType.Name}'.");
                 underlyingProperty.objectReferenceValue = null;
@@ -35,6 +37,7 @@ public class InterfaceReferenceDrawer : PropertyDrawer {
         } else {
             underlyingProperty.objectReferenceValue = null;
         }
+
 
         EditorGUI.EndProperty();
         InterfaceReferenceUtil.OnGUI(position, underlyingProperty, label, args);

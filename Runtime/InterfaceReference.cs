@@ -53,6 +53,36 @@ public class InterfaceReference<TInterface, TObject> where TObject : Object wher
     {
         return obj.Value;
     }
+
+
+    // Method to find the first object implementing TInterface
+    public static InterfaceReference<TInterface, TObject> FindObject()
+    {
+        var foundObject = Interface.FindByType<TInterface>(true);
+
+        return foundObject != null ? new InterfaceReference<TInterface, TObject>(foundObject as TObject) : null;
+    }
+
+
+    // Method to find all objects implementing TInterface
+    public static InterfaceReference<TInterface, TObject>[] FindObjects()
+    {
+        var foundObjects = Interface.FindByType<TInterface>();
+
+        if (foundObjects == null)
+        {
+            return null;
+        }
+
+        var resultArray = new InterfaceReference<TInterface, TObject>[foundObjects.Count];
+
+        for (var i = 0; i < foundObjects.Count; i++)
+        {
+            resultArray[i] = new InterfaceReference<TInterface, TObject>(foundObjects[i] as TObject);
+        }
+
+        return resultArray;
+    }
 }
 
 

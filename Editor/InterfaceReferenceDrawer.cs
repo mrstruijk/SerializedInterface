@@ -16,17 +16,22 @@ public class InterfaceReferenceDrawer : PropertyDrawer
 
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
+        // Retrieve the underlying serialized property
         var underlyingProperty = property.FindPropertyRelative(UnderlyingValueFieldName);
         var args = GetArguments(fieldInfo);
+        var interfaceTooltip = new GUIContent(label.text, $"Must implement: {args.InterfaceType.Name}");
 
         EditorGUI.BeginProperty(position, label, property);
 
-        var assignedObject = EditorGUI.ObjectField(position, label, underlyingProperty.objectReferenceValue, args.ObjectType, true);
+        // Render ObjectField with tooltip showing required interface name
+        var assignedObject = EditorGUI.ObjectField(position, interfaceTooltip, underlyingProperty.objectReferenceValue, args.ObjectType, true);
 
+        // Validation and assignment logic
         if (assignedObject != null)
         {
             Object component = null;
 
+            // Check if GameObject has the required interface
             if (assignedObject is GameObject gameObject)
             {
                 component = gameObject.GetComponent(args.InterfaceType);
@@ -36,6 +41,7 @@ public class InterfaceReferenceDrawer : PropertyDrawer
                 component = assignedObject;
             }
 
+            // Assign if valid or reset if invalid
             if (component != null)
             {
                 ValidateAndAssignObject(underlyingProperty, component, component.name, args.InterfaceType.Name);
@@ -50,7 +56,6 @@ public class InterfaceReferenceDrawer : PropertyDrawer
         {
             underlyingProperty.objectReferenceValue = null;
         }
-
 
         EditorGUI.EndProperty();
         InterfaceReferenceUtil.OnGUI(position, underlyingProperty, label, args);

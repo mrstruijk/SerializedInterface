@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -6,30 +7,30 @@ public class ExampleReferencer : MonoBehaviour
     public InterfaceReference<IExample> ReferenceOne;
     public InterfaceReference<IExample> ReferenceTwo;
     public IExample ReferenceThree;
+    public IList<IExample> ReferenceFour;
 
 
     private void Awake()
     {
-        ReferenceThree = InterfaceHelper.FindObject<IExample>();
-        ReferenceTwo = InterfaceHelper.FindObject<InterfaceReference<IExample>>();
+        ReferenceTwo.UnderlyingValue = Interface.FindFirstAsComponent<IExample>();
+
+        ReferenceThree = Interface.FindFirstByType<IExample>();
+
+        ReferenceFour = Interface.FindByType<IExample>();
     }
 
 
     private void Start()
     {
-        Debug.Log("Reference two is null: " + (ReferenceTwo == null));
-        Debug.Log("Reference three is null: " + (ReferenceThree == null));
+        ReferenceOne?.Value?.ExampleMethod(1);
 
-        ReferenceOne.Value.ExampleMethod(1);
+        ReferenceTwo?.Value?.ExampleMethod(2);
 
-        if (ReferenceTwo != null)
+        ReferenceThree?.ExampleMethod(3);
+        
+        foreach (var example in ReferenceFour)
         {
-            ReferenceTwo.Value.ExampleMethod(2);
-        }
-
-        if (ReferenceThree != null)
-        {
-            ReferenceThree.ExampleMethod(3);
+            example.ExampleMethod(4);
         }
     }
 }

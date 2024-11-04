@@ -148,8 +148,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fc6fac40cb249a1a40d7279221413ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damageableReference:
+  ReferenceOne:
     underlyingValue: {fileID: 876272412}
+  ReferenceTwo:
+    underlyingValue: {fileID: 0}
 --- !u!4 &20049358
 Transform:
   m_ObjectHideFlags: 0
@@ -162,8 +164,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 876272413}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &876272411
@@ -203,12 +204,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 876272411}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 20049358}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1586939421
 GameObject:
@@ -452,3 +453,4 @@ SceneRoots:
   - {fileID: 2085162037}
   - {fileID: 1759878778}
   - {fileID: 20049358}
+  - {fileID: 876272413}

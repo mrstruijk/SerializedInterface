@@ -1,4 +1,4 @@
-public interface IExample {
+public interface IExample
+{
     void ExampleMethod(int amount);
-   
 }

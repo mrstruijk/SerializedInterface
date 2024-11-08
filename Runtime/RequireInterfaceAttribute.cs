@@ -2,15 +2,18 @@ using System;
 using UnityEngine;
 
 
-[AttributeUsage(AttributeTargets.Field)]
-public class RequireInterfaceAttribute : PropertyAttribute
+namespace SOSXR.SerializedInterface
 {
-    public readonly Type InterfaceType;
-
-
-    public RequireInterfaceAttribute(Type interfaceType)
+    [AttributeUsage(AttributeTargets.Field)]
+    public class RequireInterfaceAttribute : PropertyAttribute
     {
-        Debug.Assert(interfaceType.IsInterface, $"{nameof(interfaceType)} needs to be an interface.");
-        InterfaceType = interfaceType;
+        public readonly Type InterfaceType;
+
+
+        public RequireInterfaceAttribute(Type interfaceType)
+        {
+            Debug.Assert(interfaceType.IsInterface, $"{nameof(interfaceType)} needs to be an interface.");
+            InterfaceType = interfaceType;
+        }
     }
 }

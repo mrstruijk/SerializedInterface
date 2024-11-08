@@ -7,154 +7,157 @@ using UnityEngine;
 using Object = UnityEngine.Object;
 
 
-[CustomPropertyDrawer(typeof(InterfaceReference<>))]
-[CustomPropertyDrawer(typeof(InterfaceReference<,>))]
-public class InterfaceReferenceDrawer : PropertyDrawer
+namespace SOSXR.SerializedInterface.Editor
 {
-    private const string UnderlyingValueFieldName = "underlyingValue";
-
-
-    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+    [CustomPropertyDrawer(typeof(InterfaceReference<>))]
+    [CustomPropertyDrawer(typeof(InterfaceReference<,>))]
+    public class InterfaceReferenceDrawer : PropertyDrawer
     {
-        // Retrieve the underlying serialized property
-        var underlyingProperty = property.FindPropertyRelative(UnderlyingValueFieldName);
-        var args = GetArguments(fieldInfo);
-        var interfaceTooltip = new GUIContent(label.text, $"Must implement: {args.InterfaceType.Name}");
+        private const string UnderlyingValueFieldName = "underlyingValue";
 
-        EditorGUI.BeginProperty(position, label, property);
 
-        // Render ObjectField with tooltip showing required interface name
-        var assignedObject = EditorGUI.ObjectField(position, interfaceTooltip, underlyingProperty.objectReferenceValue, args.ObjectType, true);
-
-        // Validation and assignment logic
-        if (assignedObject != null)
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            Object component = null;
+            // Retrieve the underlying serialized property
+            var underlyingProperty = property.FindPropertyRelative(UnderlyingValueFieldName);
+            var args = GetArguments(fieldInfo);
+            var interfaceTooltip = new GUIContent(label.text, $"Must implement: {args.InterfaceType.Name}");
 
-            // Check if GameObject has the required interface
-            if (assignedObject is GameObject gameObject)
-            {
-                component = gameObject.GetComponent(args.InterfaceType);
-            }
-            else if (args.InterfaceType.IsAssignableFrom(assignedObject.GetType()))
-            {
-                component = assignedObject;
-            }
+            EditorGUI.BeginProperty(position, label, property);
 
-            // Assign if valid or reset if invalid
-            if (component != null)
+            // Render ObjectField with tooltip showing required interface name
+            var assignedObject = EditorGUI.ObjectField(position, interfaceTooltip, underlyingProperty.objectReferenceValue, args.ObjectType, true);
+
+            // Validation and assignment logic
+            if (assignedObject != null)
             {
-                ValidateAndAssignObject(underlyingProperty, component, component.name, args.InterfaceType.Name);
+                Object component = null;
+
+                // Check if GameObject has the required interface
+                if (assignedObject is GameObject gameObject)
+                {
+                    component = gameObject.GetComponent(args.InterfaceType);
+                }
+                else if (args.InterfaceType.IsAssignableFrom(assignedObject.GetType()))
+                {
+                    component = assignedObject;
+                }
+
+                // Assign if valid or reset if invalid
+                if (component != null)
+                {
+                    ValidateAndAssignObject(underlyingProperty, component, component.name, args.InterfaceType.Name);
+                }
+                else
+                {
+                    Debug.LogWarning($"Assigned object does not implement required interface '{args.InterfaceType.Name}'.");
+                    underlyingProperty.objectReferenceValue = null;
+                }
             }
             else
             {
-                Debug.LogWarning($"Assigned object does not implement required interface '{args.InterfaceType.Name}'.");
                 underlyingProperty.objectReferenceValue = null;
             }
-        }
-        else
-        {
-            underlyingProperty.objectReferenceValue = null;
-        }
 
-        EditorGUI.EndProperty();
-        InterfaceReferenceUtil.OnGUI(position, underlyingProperty, label, args);
-    }
-
-
-    private static InterfaceArgs GetArguments(FieldInfo fieldInfo)
-    {
-        Type objectType = null, interfaceType = null;
-        var fieldType = fieldInfo.FieldType;
-
-
-        if (!TryGetTypesFromInterfaceReference(fieldType, out objectType, out interfaceType))
-        {
-            GetTypesFromList(fieldType, out objectType, out interfaceType);
+            EditorGUI.EndProperty();
+            InterfaceReferenceUtil.OnGUI(position, underlyingProperty, label, args);
         }
 
-        return new InterfaceArgs(objectType, interfaceType);
 
-
-        void GetTypesFromList(Type type, out Type objType, out Type intfType)
+        private static InterfaceArgs GetArguments(FieldInfo fieldInfo)
         {
-            objType = intfType = null;
+            Type objectType = null, interfaceType = null;
+            var fieldType = fieldInfo.FieldType;
 
-            var listInterface = type.GetInterfaces()
-                                    .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IList<>));
 
-            if (listInterface != null)
+            if (!TryGetTypesFromInterfaceReference(fieldType, out objectType, out interfaceType))
             {
-                var elementType = listInterface.GetGenericArguments()[0];
-                TryGetTypesFromInterfaceReference(elementType, out objType, out intfType);
+                GetTypesFromList(fieldType, out objectType, out interfaceType);
             }
-        }
+
+            return new InterfaceArgs(objectType, interfaceType);
 
 
-        bool TryGetTypesFromInterfaceReference(Type type, out Type objType, out Type intfType)
-        {
-            objType = intfType = null;
-
-            if (type?.IsGenericType != true)
+            void GetTypesFromList(Type type, out Type objType, out Type intfType)
             {
+                objType = intfType = null;
+
+                var listInterface = type.GetInterfaces()
+                                        .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IList<>));
+
+                if (listInterface != null)
+                {
+                    var elementType = listInterface.GetGenericArguments()[0];
+                    TryGetTypesFromInterfaceReference(elementType, out objType, out intfType);
+                }
+            }
+
+
+            bool TryGetTypesFromInterfaceReference(Type type, out Type objType, out Type intfType)
+            {
+                objType = intfType = null;
+
+                if (type?.IsGenericType != true)
+                {
+                    return false;
+                }
+
+                var genericType = type.GetGenericTypeDefinition();
+
+                if (genericType == typeof(InterfaceReference<>))
+                {
+                    type = type.BaseType;
+                }
+
+                if (type?.GetGenericTypeDefinition() == typeof(InterfaceReference<,>))
+                {
+                    var types = type.GetGenericArguments();
+                    intfType = types[0];
+                    objType = types[1];
+
+                    return true;
+                }
+
                 return false;
             }
+        }
 
-            var genericType = type.GetGenericTypeDefinition();
 
-            if (genericType == typeof(InterfaceReference<>))
+        private static void ValidateAndAssignObject(SerializedProperty property, Object targetObject, string componentNameOrType, string interfaceName = null)
+        {
+            if (targetObject != null)
             {
-                type = type.BaseType;
+                property.objectReferenceValue = targetObject;
             }
-
-            if (type?.GetGenericTypeDefinition() == typeof(InterfaceReference<,>))
+            else
             {
-                var types = type.GetGenericArguments();
-                intfType = types[0];
-                objType = types[1];
+                var message = interfaceName != null
+                    ? $"GameObject '{componentNameOrType}'"
+                    : "assigned object";
 
-                return true;
+                Debug.LogWarning(
+                    $"The {message} does not have a component that implements '{interfaceName}'."
+                );
+
+                property.objectReferenceValue = null;
             }
-
-            return false;
         }
     }
 
 
-    private static void ValidateAndAssignObject(SerializedProperty property, Object targetObject, string componentNameOrType, string interfaceName = null)
+    public struct InterfaceArgs
     {
-        if (targetObject != null)
+        public readonly Type ObjectType;
+        public readonly Type InterfaceType;
+
+
+        public InterfaceArgs(Type objectType, Type interfaceType)
         {
-            property.objectReferenceValue = targetObject;
+            Debug.Assert(typeof(Object).IsAssignableFrom(objectType), $"{nameof(objectType)} needs to be of Type {typeof(Object)}.");
+            Debug.Assert(interfaceType.IsInterface, $"{nameof(interfaceType)} needs to be an interface.");
+
+            ObjectType = objectType;
+            InterfaceType = interfaceType;
         }
-        else
-        {
-            var message = interfaceName != null
-                ? $"GameObject '{componentNameOrType}'"
-                : "assigned object";
-
-            Debug.LogWarning(
-                $"The {message} does not have a component that implements '{interfaceName}'."
-            );
-
-            property.objectReferenceValue = null;
-        }
-    }
-}
-
-
-public struct InterfaceArgs
-{
-    public readonly Type ObjectType;
-    public readonly Type InterfaceType;
-
-
-    public InterfaceArgs(Type objectType, Type interfaceType)
-    {
-        Debug.Assert(typeof(Object).IsAssignableFrom(objectType), $"{nameof(objectType)} needs to be of Type {typeof(Object)}.");
-        Debug.Assert(interfaceType.IsInterface, $"{nameof(interfaceType)} needs to be an interface.");
-
-        ObjectType = objectType;
-        InterfaceType = interfaceType;
     }
 }

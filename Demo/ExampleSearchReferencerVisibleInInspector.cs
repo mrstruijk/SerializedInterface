@@ -1,15 +1,16 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using SOSXR.SerializedInterface.Tools;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
 
 namespace SOSXR.SerializedInterface.Demo
 {
-    public class ExampleReferencerInvisibleInInspector : MonoBehaviour
+    public class ExampleSearchReferencerVisibleInInspector : MonoBehaviour
     {
-        public IExample NotVisibleInInspector;
-        public IList<IExample> ListNotVisibleInInspector;
+        [DisableEditing] public InterfaceReference<IExample> FindAsComponent;
+        [DisableEditing] public List<InterfaceReferenceWrapper<IExample>> InterfaceReferences;
 
 
         private void OnEnable()
@@ -21,7 +22,7 @@ namespace SOSXR.SerializedInterface.Demo
             FindReferences();
 
             Debug.Log("Time taken: " + stopwatch.ElapsedMilliseconds + " ms" + " to find references");
-
+            
             stopwatch.Restart();
 
             DoMethods();
@@ -34,18 +35,18 @@ namespace SOSXR.SerializedInterface.Demo
 
         private void FindReferences()
         {
-            NotVisibleInInspector = Interface.FindFirstByType<IExample>();
-            ListNotVisibleInInspector = Interface.FindByType<IExample>();
+            FindAsComponent.UnderlyingValue = Interface.FindFirstAsComponent<IExample>();
+            InterfaceReferences = Interface.FindAllAsList<IExample>();
         }
 
 
         private void DoMethods()
         {
-            NotVisibleInInspector?.ExampleMethod(3);
+            FindAsComponent?.Value?.ExampleMethod(2);
 
-            foreach (var item in ListNotVisibleInInspector)
+            foreach (var item in InterfaceReferences)
             {
-                item.ExampleMethod(4);
+                item.Reference?.Value?.ExampleMethod(5);
             }
         }
     }

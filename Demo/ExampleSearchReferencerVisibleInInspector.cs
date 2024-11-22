@@ -22,7 +22,7 @@ namespace SOSXR.SerializedInterface.Demo
             FindReferences();
 
             Debug.Log("Time taken: " + stopwatch.ElapsedMilliseconds + " ms" + " to find references");
-            
+
             stopwatch.Restart();
 
             DoMethods();

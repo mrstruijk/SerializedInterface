@@ -1,0 +1,18 @@
+{
+    "name": "SOSXR.SerializedInterface.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:85f459c2c7c5f4d269b081844e015804"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
